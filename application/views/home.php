@@ -35,13 +35,15 @@
 			</tbody>
 		</table>
 
+		<!-- modal tambah data -->
 		<div class="modal fade" id="form" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
-
+					<p id="pesan"></p>
 					<div class="modal-header mb-3">
 						<h1>Data Barang</h1>
 					</div>
+					<p id="pesan"></p>
 					<table class="table">
 						<tr>
 							<td>KODE BARANG</td>
@@ -98,22 +100,36 @@
 					// ambil dari id dan baris yang di ulang
 					$('#targetData').html(baris);
 				}
-			})
+			});
 		}
 
 		function tambahdata() {
-			var kode_barang = $("[name='kode_barang']").val();
-			var nama_barang = $("[name='nama_barang']").val();
-			var harga = $("[name='harga']").val();
-			var stok = $("[name='stok']").val();
+			// ambil value dari input name insert ke variable 
+			var kode_barang =$("[name='kode_barang']").val();
+			var nama_barang =$("[name='nama_barang']").val();
+			var harga =$("[name='harga']").val();
+			var stok =$("[name='stok']").val();
 
 			$.ajax({
 				type: 'POST',
-				data: 'kode_barang' + kode_barang + '&nama_barang=' + nama_barang + '&harga=' + harga + '&stok=' + stok,
-				url: '<?= base_url() . 'index.php/page/tambahdata' ?>',
+				data: 'kode_barang='+kode_barang+'&nama_barang='+nama_barang+'&harga='+harga+'&stok='+stok,
+				url: '<?= base_url().'index.php/page/tambahdata' ?>',
 				dataType: 'json',
+				// hasil di dapatkan dari echo json encode pada controller
 				success: function(hasil) {
-					$("#pesan").html(hasil.pesan);
+					console.log(hasil);
+					// id pesan di isi dari parameter hasil dan pesan dari parsing controller
+					// $("#pesan").html(hasil.pesan);
+					// // jika hasil pesan kosong, modal hide
+					// if(hasil.pesan==''){
+					// 	$("#form").modal('hide');
+					// 	ambilData();
+
+					// 	$("[name='kode_barang']").val('');
+					// 	$("[name='nama_barang']").val('');
+					// 	$("[name='harga']").val('');
+					// 	$("[name='stok']").val('');
+					// }
 				}
 			});
 		}

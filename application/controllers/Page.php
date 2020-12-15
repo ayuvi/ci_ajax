@@ -26,11 +26,13 @@ class Page extends CI_Controller
 
 	function tambahdata()
 	{
+		// tampung data yang di input ke var baru
 		$kode_barang = $this->input->post('kode_barang');
 		$nama_barang = $this->input->post('nama_barang');
 		$harga = $this->input->post('harga');
 		$stok = $this->input->post('stok');
 
+		// jika nilai var kosong
 		if ($kode_barang == '') {
 			$result['pesan'] = "kode barang harus diisi";
 		} elseif ($nama_barang == '') {
@@ -42,13 +44,14 @@ class Page extends CI_Controller
 		} else {
 			$result['pesan'] = "";
 
+			// proses penyimpanan ke database
 			$data = [
 				'kode_barang' => $kode_barang,
 				'nama_barang' => $nama_barang,
 				'harga' => $harga,
 				'stok' => $stok
 			];
-
+			// kirim data ke model 
 			$this->m->tambahdata($data, 'tb_barang');
 		}
 
