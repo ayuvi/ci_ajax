@@ -57,4 +57,53 @@ class Page extends CI_Controller
 
 		echo json_encode($result);
 	}
+
+	function ambilId(){
+		$id = $this->input->post('id');
+		$where= ['id'=> $id];
+		$databarang = $this->m->ambilId('tb_barang',$where)->result();
+
+		echo json_encode($databarang);
+	}
+
+	function ubahdata()
+	{
+		// tampung data yang di input ke var baru
+		$id = $this->input->post('id');
+		$kode_barang = $this->input->post('kode_barang');
+		$nama_barang = $this->input->post('nama_barang');
+		$harga = $this->input->post('harga');
+		$stok = $this->input->post('stok');
+
+		// jika nilai var kosong
+		if ($kode_barang == '') {
+			$result['pesan'] = "kode barang harus diisi";
+		} elseif ($nama_barang == '') {
+			$result['pesan'] = "Nama barang harus diisi";
+		} elseif ($harga == '') {
+			$result['pesan'] = "Harga barang harus diisi";
+		} elseif ($stok == '') {
+			$result['pesan'] = "stok harus diisi";
+		} else {
+			$result['pesan'] = "";
+			$where = ['id' => $id];
+			// proses penyimpanan ke database
+			$data = [
+				'kode_barang' => $kode_barang,
+				'nama_barang' => $nama_barang,
+				'harga' => $harga,
+				'stok' => $stok
+			];
+			// kirim data ke model 
+			$this->m->updatedata($where,$data, 'tb_barang');
+		}
+
+		echo json_encode($result);
+	}
+
+	function hapusdata(){
+		$id=$this->input->post('id');
+		$where=['id'=>$id];
+		$this->m->hapusdata($where,'tb_barang');
+	}
 }

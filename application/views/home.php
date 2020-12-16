@@ -16,7 +16,7 @@
 
 		<p id="pesan"></p>
 
-		<a href="#form" data-toggle="modal" class="btn btn-primary mb-3">Tambah Data</a>
+		<a href="#form" data-toggle="modal" class="btn btn-primary mb-3" onclick="submit('tambah')">Tambah Data</a>
 
 		<table class="table table-hover">
 			<thead class="bg-primary">
@@ -26,6 +26,7 @@
 					<th>Nama Barang</th>
 					<th>Harga</th>
 					<th>Stock</th>
+					<th>Action</th>
 				</tr>
 			</thead>
 			<tbody id="targetData">
@@ -48,6 +49,7 @@
 						<tr>
 							<td>KODE BARANG</td>
 							<td><input type="text" name="kode_barang" placeholder="Kode Barang" class="form-control"></td>
+							<input type="hidden" name="id" value="">
 						</tr>
 						<tr>
 							<td>NAMA BARANG</td>
@@ -65,6 +67,7 @@
 							<td></td>
 							<td>
 								<button type="button" id="btn-tambah" onclick="tambahdata()" class="btn btn-primary">Tambah</button>
+								<button type="button" id="btn-ubah" onclick="ubahdata()" class="btn btn-primary">Ubah</button>
 								<button type="button" data-dismiss="modal" class="btn btn-danger">Cancel</button>
 							</td>
 						</tr>
@@ -90,11 +93,12 @@
 					// mengulang data untuk menampilkan database
 					for (var i = 0; i < data.length; i++) {
 						baris += '<tr>' +
-							'<td>' + data[i].id + '</td>' +
+							'<td>' + (i+1) + '</td>' +
 							'<td>' + data[i].kode_barang + '</td>' +
 							'<td>' + data[i].nama_barang + '</td>' +
 							'<td>' + data[i].harga + '</td>' +
 							'<td>' + data[i].stok + '</td>' +
+							'<td><a href="#form" data-toggle="modal" class="btn btn-primary" onclick="submit('+data[i].id+')">Ubah</a> <a onclick="hapusdata('+data[i].id+')" class="btn btn-danger">Hapus</a></td>'
 							'</tr>';
 					}
 					// ambil dari id dan baris yang di ulang
@@ -105,10 +109,10 @@
 
 		function tambahdata() {
 			// ambil value dari input name insert ke variable 
-			var kode_barang =$("[name='kode_barang']").val();
-			var nama_barang =$("[name='nama_barang']").val();
-			var harga =$("[name='harga']").val();
-			var stok =$("[name='stok']").val();
+			var kode_barang=$("[name='kode_barang']").val();
+			var nama_barang=$("[name='nama_barang']").val();
+			var harga=$("[name='harga']").val();
+			var stok=$("[name='stok']").val();
 
 			$.ajax({
 				type: 'POST',
@@ -117,21 +121,83 @@
 				dataType: 'json',
 				// hasil di dapatkan dari echo json encode pada controller
 				success: function(hasil) {
-					console.log(hasil);
-					// id pesan di isi dari parameter hasil dan pesan dari parsing controller
-					// $("#pesan").html(hasil.pesan);
-					// // jika hasil pesan kosong, modal hide
-					// if(hasil.pesan==''){
-					// 	$("#form").modal('hide');
-					// 	ambilData();
+					//id pesan di isi dari parameter hasil dan pesan dari parsing controller
+					$("#pesan").html(hasil.pesan);
+					// jika hasil pesan kosong, modal hide
+					if(hasil.pesan==''){
+						$("#form").modal('hide');
+						ambilData();
 
-					// 	$("[name='kode_barang']").val('');
-					// 	$("[name='nama_barang']").val('');
-					// 	$("[name='harga']").val('');
-					// 	$("[name='stok']").val('');
-					// }
+						// bersihkan form setelah di isi
+						$("[name='kode_barang']").val('');
+						$("[name='nama_barang']").val('');
+						$("[name='harga']").val('');
+						$("[name='stok']").val('');
+					}
 				}
 			});
+		}
+
+		function submit(x){
+			if(x=='tambah'){
+				$('#btn-tambah').show();
+				$('#btn-ubah').hide();
+			}else{
+				$('#btn-tambah').hide();
+				$('#btn-ubah').show();
+
+				$.ajax({
+					type: "POST",
+					data: 'id='+x,
+					url: '<?= base_url()."index.php/page/ambilId"?>',
+					dataType :'json',
+					success: function(hasil){
+						$('[name="id"]').val(hasil[0].id);
+						$('[name="kode_barang"]').val(hasil[0].kode_barang);
+						$('[name="nama_barang"]').val(hasil[0].nama_barang);
+						$('[name="harga"]').val(hasil[0].harga);
+						$('[name="stok"]').val(hasil[0].stok);
+					}
+				});
+			}
+		}
+		
+		function ubahdata(){
+			var id=$("[name='id']").val();
+			var kode_barang=$("[name='kode_barang']").val();
+			var nama_barang=$("[name='nama_barang']").val();
+			var harga=$("[name='harga']").val();
+			var stok=$("[name='stok']").val();
+
+			$.ajax({
+				type:'POST',
+				data:'id='+id+'&kode_barang='+kode_barang+'&nama_barang='+nama_barang+'&harga='+harga+'&stok='+stok,
+				url: '<?= base_url().'index.php/page/ubahdata'?>',
+				dataType: 'json',
+				success: function(hasil){
+					$("#pesan").html(hasil.pesan);
+					// jika hasil pesan kosong, modal hide
+					if(hasil.pesan==''){
+						$("#form").modal('hide');
+						ambilData();
+					}
+				}
+			})
+		}
+
+		function hapusdata(id){
+			var tanya = confirm('Apakah anda yakin akan menghapus data?');
+
+			if(tanya){
+				$.ajax({
+					type:'POST',
+					data:'id='+id,
+					url: '<?= base_url()."index.php/page/hapusdata"?>',
+					success: function(){
+						ambilData();
+					}
+				})
+			}
 		}
 	</script>
 
